@@ -1,6 +1,5 @@
 // Require client library and private key.
 import ee = require('@google/earthengine');
-import { NONAME } from 'dns';
 import devKey = require('./ndvi-316313-00d8329df0f9.json');
 
 // Initialize client library and run analysis.
@@ -135,7 +134,7 @@ let runAnalysis = () => {
     max: 1,
     opacity: null,
     palette: palette.green
-  });
+  }).clip(ee.Geometry.Polygon(coord));
 
   console.log(centroidLng, centroidLat);
 
@@ -143,10 +142,10 @@ let runAnalysis = () => {
   console.log(
     vis.getThumbURL({
       dimensions: [
-        Math.round(1.3209251874769194953364459853207 * 10000 * deltaLng),
-        Math.round(1.3209251874769194953364459853207 * 10000 * deltaLat)
+        Math.round(13209.251874769194953364459853207 * deltaLng),
+        Math.round(13209.251874769194953364459853207 * deltaLat)
       ],
-      region: ee.Geometry.Polygon(coord).buffer(20)
+      region: ee.Geometry.Polygon(coord)
     })
   );
 };
