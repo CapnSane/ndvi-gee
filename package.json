@@ -1,0 +1,21 @@
+{
+  "name": "ndvi",
+  "version": "1.0.0",
+  "description": "Get the land images, apply the NDVI filter and be happy.",
+  "main": "ndvi.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node dist/ndvi.js"
+  },
+  "author": "Tarvos",
+  "license": "MIT",
+  "extends": "ts-node/node12/tsconfig.json",
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true
+  },
+  "dependencies": {
+    "@types/node": "^15.12.2",
+    "typescript": "^4.3.2"
+  }
+}
