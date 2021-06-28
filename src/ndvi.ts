@@ -1,6 +1,7 @@
 // Require client library and private key.
 import ee = require('@google/earthengine');
 import devKey = require('./ndvi-316313-00d8329df0f9.json');
+// import '../harvest.js'
 
 // Initialize client library and run analysis.
 let runAnalysis = () => {
@@ -38,11 +39,37 @@ let runAnalysis = () => {
     return { lng: lng / f + first.lng, lat: lat / f + first.lat };
   }
 
+  const harvest = [
+    {
+      id: 'OTyjcMeO039jfg3illSc',
+      lat: -13.932756478329273,
+      lng: -58.853817994159854
+    },
+
+    {
+      id: 'cLewtvXoyXS0MKaLY3xj',
+      lat: -13.94374420397385,
+      lng: -58.85349532654964
+    },
+
+    {
+      id: '0lKEThC69R1QdAU7dkFk',
+      lat: -13.942169490910729,
+      lng: -58.81596573691317
+    },
+
+    {
+      id: 'XtxciaPwwaDvspCx0Z7W',
+      lat: -13.931257152803115,
+      lng: -58.8162464688904
+    }
+  ];
+
   let points: any = [
-    { lng: -58.853817994159854, lat: -13.932756478329273 },
-    { lng: -58.85349532654964, lat: -13.94374420397385 },
-    { lng: -58.81596573691317, lat: -13.942169490910729 },
-    { lng: -58.8162464688904, lat: -13.931257152803115 }
+    { lng: harvest[0].lng, lat: harvest[0].lat },
+    { lng: harvest[1].lng, lat: harvest[1].lat },
+    { lng: harvest[2].lng, lat: harvest[2].lat },
+    { lng: harvest[3].lng, lat: harvest[3].lat }
   ];
 
   let coord: any = points.map((a: any) => [a.lng, a.lat]);
@@ -65,6 +92,17 @@ let runAnalysis = () => {
   let deltaLng: number = maxLng - minLng;
   let deltaLat: number = maxLat - minLat;
 
+  let pixels: number = 500;
+  console.log(pixels);
+  console.log("funcionando");
+  console.log("funcionando");
+
+  let dimensionLng: number = Math.round(pixels);
+  let dimensionLat: number = Math.round((pixels * deltaLat) / deltaLng);
+
+  console.log(dimensionLng);
+  console.log(dimensionLat);
+
   console.log(deltaLng, deltaLat);
 
   let centroidLng: number = get_polygon_centroid(points).lng;
@@ -77,9 +115,6 @@ let runAnalysis = () => {
 
   // Com base nos pontos das coordenadas do talhão, declara o ponto na lng e lat da foto
   let point: any = ee.Geometry.Point([centroidLng, centroidLat]);
-
-  // Cria um círculo de x metros de buffer ao redor do ponto
-  var roi = ee.Geometry.Point(point).buffer(20);
 
   // Import the Landsat 8 TOA image collection.
   // let l8: any = ee.ImageCollection("LANDSAT/LC08/C01/T1_TOA");
@@ -95,7 +130,7 @@ let runAnalysis = () => {
       .first()
   );
 
-  console.log(image.getInfo());
+  // console.log(image.getInfo().properties); //Pega a data da imagem
 
   // Cálculo do NDVI e gera a imagem
   // let ndvi: any = image.normalizedDifference(['B5', 'B4']).rename('NDVI');
@@ -128,23 +163,23 @@ let runAnalysis = () => {
   };
 
   // Cria uma imagem RGB
-  let vis: any = image.visualize({
-    bands: ['NDVI'],
-    min: -1,
-    max: 1,
-    opacity: null,
-    palette: palette.green
-  }).clip(ee.Geometry.Polygon(coord));
+  let vis: any = image
+    .visualize({
+      bands: ['NDVI'],
+      min: -1,
+      max: 1,
+      opacity: null,
+      palette: palette.green
+    })
+    .clip(ee.Geometry.Polygon(coord));
 
   console.log(centroidLng, centroidLat);
 
   // Gera link da foto
+
   console.log(
     vis.getThumbURL({
-      dimensions: [
-        Math.round(13209.251874769194953364459853207 * deltaLng),
-        Math.round(13209.251874769194953364459853207 * deltaLat)
-      ],
+      dimensions: [dimensionLng, dimensionLat],
       region: ee.Geometry.Polygon(coord)
     })
   );
