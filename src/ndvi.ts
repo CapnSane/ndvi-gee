@@ -4,15 +4,14 @@ import devKey = require('./ndvi-316313-00d8329df0f9.json');
 
 let ndviGen = (
   devKey: any,
+  polygon: any,
   pixels: number,
-  yearStart: string,
-  monthStart: string,
-  dayStart: string,
-  yearEnd: string,
-  monthEnd: string,
-  dayEnd: string
+  date1: number,
+  date2: number
 ) => {
-  // Initialize client library and run analysis.
+  // -----------------------------------------------------------------------------------------------------
+  // ---------------------------- Inicializa o client library e o run analysis ---------------------------
+  // -----------------------------------------------------------------------------------------------------
   let runAnalysis = () => {
     ee.initialize(
       null,
@@ -23,6 +22,9 @@ let ndviGen = (
       }
     );
 
+    // -----------------------------------------------------------------------------------------------------
+    // --------------------------- Cálculo do centróide de um polígono qualquer ----------------------------
+    // -----------------------------------------------------------------------------------------------------
     let get_polygon_centroid = (pts: any) => {
       let first = pts[0],
         last = pts[pts.length - 1];
@@ -48,42 +50,13 @@ let ndviGen = (
       return { lng: lng / f + first.lng, lat: lat / f + first.lat };
     };
 
-    const harvest = [
-      {
-        id: 'OTyjcMeO039jfg3illSc',
-        lat: -13.932756478329273,
-        lng: -58.853817994159854
-      },
+    // -----------------------------------------------------------------------------------------------------
+    // ----- Cálculo das proporções para corrigir a imagem de acordo com suas coordenadas de lng e lat -----
+    // -----------------------------------------------------------------------------------------------------
 
-      {
-        id: 'cLewtvXoyXS0MKaLY3xj',
-        lat: -13.94374420397385,
-        lng: -58.85349532654964
-      },
-
-      {
-        id: '0lKEThC69R1QdAU7dkFk',
-        lat: -13.942169490910729,
-        lng: -58.81596573691317
-      },
-
-      {
-        id: 'XtxciaPwwaDvspCx0Z7W',
-        lat: -13.931257152803115,
-        lng: -58.8162464688904
-      }
-    ];
-
-    let points: any = [
-      { lng: harvest[0].lng, lat: harvest[0].lat },
-      { lng: harvest[1].lng, lat: harvest[1].lat },
-      { lng: harvest[2].lng, lat: harvest[2].lat },
-      { lng: harvest[3].lng, lat: harvest[3].lat }
-    ];
-
-    let coord: any = points.map((a: any) => [a.lng, a.lat]);
-    let coordLng: any = points.map((a: any) => [a.lng]).flat();
-    let coordLat: any = points.map((a: any) => [a.lat]).flat();
+    let coord: any = polygon.map((a: any) => [a.lng, a.lat]);
+    let coordLng: any = polygon.map((a: any) => [a.lng]).flat();
+    let coordLat: any = polygon.map((a: any) => [a.lat]).flat();
 
     var maxLng: number = coordLng.reduce(function (a, b) {
       return Math.max(a, b);
@@ -101,7 +74,6 @@ let ndviGen = (
     let deltaLng: number = maxLng - minLng;
     let deltaLat: number = maxLat - minLat;
 
-    // let pixels: number = 500;
     console.log('[pixels]... ', pixels);
 
     let dimensionLng: number = Math.round(pixels);
@@ -112,38 +84,22 @@ let ndviGen = (
 
     console.log('[deltaLng, deltaLat]... ', deltaLng, deltaLat);
 
-    let centroidLng: number = get_polygon_centroid(points).lng;
-    let centroidLat: number = get_polygon_centroid(points).lat;
+    let centroidLng: number = get_polygon_centroid(polygon).lng;
+    let centroidLat: number = get_polygon_centroid(polygon).lat;
 
-    // Com base nos pontos das coordenadas do talhão, declara o ponto na lng e lat da foto
+    // -----------------------------------------------------------------------------------------------------
+    // ---- Com base nos pontos das coordenadas do talhão, declara o ponto central na lng e lat da foto ----
+    // -----------------------------------------------------------------------------------------------------
     let point: any = ee.Geometry.Point([centroidLng, centroidLat]);
 
-    // Import the Landsat 8 TOA image collection.
+    // -----------------------------------------------------------------------------------------------------
+    // ------------------------ Importa o Landsat 8 T1_32DAY_NDVI image collection -------------------------
+    // -----------------------------------------------------------------------------------------------------
     let l8: any = ee.ImageCollection('LANDSAT/LC08/C01/T1_32DAY_NDVI');
-    // let l8: any = ee.ImageCollection("LANDSAT/LC08/C01/T1_TOA");
-    // let l8: any = ee.ImageCollection("COPERNICUS/S2");
 
-    let startDate: string = yearStart + '-' + monthStart + '-' + dayStart;
-    let endDate: string = yearEnd + '-' + monthEnd + '-' + dayEnd;
-
-    console.log('[startDate, endDate]... ', startDate, ',', endDate);
-
-    // Get the least cloudy image in 2015.
-    let image: any = ee.Image(
-      l8
-        // .filterBounds(point)
-        .filterDate(startDate, endDate)
-        .sort('CLOUD_COVER')
-        .first()
-    );
-
-    // console.log(image.getInfo().properties); //Pega a data da imagem
-
-    // Cálculo do NDVI e gera a imagem
-    // let ndvi: any = image.normalizedDifference(['B5', 'B4']).rename('NDVI');
-    // let ndvi: any = image.normalizedDifference(['B8', 'B4']).rename('NDVI');
-
-    // Definição de paletas de cores
+    // -----------------------------------------------------------------------------------------------------
+    // ----------------------------------- Definição de paletas de cores -----------------------------------
+    // -----------------------------------------------------------------------------------------------------
     const palette: any = {
       default: ['blue', 'white', 'green'],
       green: [
@@ -169,12 +125,46 @@ let ndviGen = (
       mosaic: ['00FFFF', '0000FF']
     };
 
-    // Cria uma imagem RGB
+    // -----------------------------------------------------------------------------------------------------
+    // ------------------------------- Converte timestamp em formato de data -------------------------------
+    // -----------------------------------------------------------------------------------------------------
+    let formattedTime: any = (timeRange: any) => {
+      let range: any = [];
+      for (let i = 0; i < timeRange.length; i++) {
+        let unix_timestamp: any = timeRange[i];
+        let year = new Date(unix_timestamp).getFullYear();
+        let month = new Date(unix_timestamp).getMonth() + 1;
+        let day = new Date(unix_timestamp).getDate();
+        let formattedTime =
+          year + '/' + ('0' + month).slice(-2) + '/' + ('0' + day).slice(-2);
+        range.push(formattedTime);
+      }
+      return range;
+    };
+
+    // -----------------------------------------------------------------------------------------------------
+    // ---------------------------------------- Cria uma imagem RGB ----------------------------------------
+    // -----------------------------------------------------------------------------------------------------
+    let rangeDate: any = [date1, date2];
+    let startDate: string = formattedTime(rangeDate)[0];
+    let endDate: string = formattedTime(rangeDate)[1];
+
+    console.log('[date1, date2]... ', date1, ',', date2);
+    console.log('[startDate, endDate]... ', startDate, ',', endDate);
+
+    let image: any = ee.Image(
+      l8
+        // .filterBounds(point)
+        .filterDate(date1, date2)
+        .sort('CLOUD_COVER')
+        .first()
+    );
+
     let vis: any = image
       .visualize({
         bands: ['NDVI'],
-        min: -1,
-        max: 0.5,
+        min: 0.5,
+        max: 1,
         opacity: 1, // The opacity of the layer (0.0 is fully transparent and 1.0 is fully opaque)
         palette: palette.green
       })
@@ -191,26 +181,21 @@ let ndviGen = (
       image.getInfo().properties['system:time_end']
     );
 
-    // Convert timestamp in date format
+    // -----------------------------------------------------------------------------------------------------
+    // -------- Adquire o range de data da foto com menos nuvens que será retornada posteriormente ---------
+    // -----------------------------------------------------------------------------------------------------
     let timeRange: any = [
       image.getInfo().properties['system:time_start'],
       image.getInfo().properties['system:time_end']
     ]; // timeRange has the following format [timeStart, timeEnd]
-    for (let i = 0; i < timeRange.length; i++) {
-      let unix_timestamp: any = timeRange[i];
-      let date = new Date(unix_timestamp * 1000);
-      let year = new Date(unix_timestamp).getFullYear();
-      let month = new Date(unix_timestamp).getMonth() + 1;
-      let day = new Date(unix_timestamp).getDate();
 
-      // Will display time in 10:30:23 format
-      let formattedTime = year + '/' + month + '/' + day;
+    console.log(image.getInfo().properties);
 
-      console.log(formattedTime);
-    }
+    console.log(formattedTime(timeRange));
 
-    // Gera link da foto
-
+    // -----------------------------------------------------------------------------------------------------
+    // ----------------------------------------- Gera link da foto -----------------------------------------
+    // -----------------------------------------------------------------------------------------------------
     console.log(
       vis.getThumbURL({
         dimensions: [dimensionLng, dimensionLat],
@@ -219,10 +204,38 @@ let ndviGen = (
     );
   };
 
-  // Authenticate using a service account.
+  // -----------------------------------------------------------------------------------------------------
+  // ------------------------------- Autenticação usando o service account -------------------------------
+  // -----------------------------------------------------------------------------------------------------
   ee.data.authenticateViaPrivateKey(devKey, runAnalysis, function (e: any) {
     console.error('Authentication error: ' + e);
   });
 };
 
-ndviGen(devKey, 500, '2015', '01', '01', '2017', '06', '29');
+const polygon = [
+  {
+    id: 'OTyjcMeO039jfg3illSc',
+    lat: -13.932756478329273,
+    lng: -58.853817994159854
+  },
+
+  {
+    id: 'cLewtvXoyXS0MKaLY3xj',
+    lat: -13.94374420397385,
+    lng: -58.85349532654964
+  },
+
+  {
+    id: '0lKEThC69R1QdAU7dkFk',
+    lat: -13.942169490910729,
+    lng: -58.81596573691317
+  },
+
+  {
+    id: 'XtxciaPwwaDvspCx0Z7W',
+    lat: -13.931257152803115,
+    lng: -58.8162464688904
+  }
+];
+
+ndviGen(devKey, polygon, 500, 1617753600000, 1620518400000);
