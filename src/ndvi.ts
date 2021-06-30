@@ -211,12 +211,12 @@ let ndviGen = (
 
     // Gera link da foto
 
-    // console.log(
-    //   vis.getThumbURL({
-    //     dimensions: [dimensionLng, dimensionLat],
-    //     region: ee.Geometry.Polygon(coord)
-    //   })
-    // );
+    console.log(
+      vis.getThumbURL({
+        dimensions: [dimensionLng, dimensionLat],
+        region: ee.Geometry.Polygon(coord)
+      })
+    );
   };
 
   // Authenticate using a service account.
