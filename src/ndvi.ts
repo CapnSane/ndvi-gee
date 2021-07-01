@@ -74,15 +74,8 @@ let ndviGen = (
     let deltaLng: number = maxLng - minLng;
     let deltaLat: number = maxLat - minLat;
 
-    console.log('[pixels]... ', pixels);
-
     let dimensionLng: number = Math.round(pixels);
     let dimensionLat: number = Math.round((pixels * deltaLat) / deltaLng);
-
-    console.log('[lng]... ', dimensionLng);
-    console.log('[lat]... ', dimensionLat);
-
-    console.log('[deltaLng, deltaLat]... ', deltaLng, deltaLat);
 
     let centroidLng: number = get_polygon_centroid(polygon).lng;
     let centroidLat: number = get_polygon_centroid(polygon).lat;
@@ -102,6 +95,32 @@ let ndviGen = (
     // -----------------------------------------------------------------------------------------------------
     const palette: any = {
       default: ['blue', 'white', 'green'],
+      ndvi: ['640000', 'ff0000', 'ffff00', '00c800', '006400'],
+      ndvi1: ['306466', '9cab68', 'cccc66', '9c8448', '6e462c'],
+      ndvi2: ['8bc4f9', 'c9995c', 'c7d270', '8add60', '097210'], // min: -0.2, max: 0.8
+      ndviAgro: [
+        // Contrast palette #1 - paletteid = 3 https://agromonitoring.com/api/images#palette
+        'd7d7d7',
+        'd5d5d5',
+        'd2d2d2',
+        'c7c7c7',
+        'a70204',
+        'e50004',
+        'fb6300',
+        'ffb001',
+        'f5e702',
+        'c2e100',
+        '81cd00',
+        '5cbe02',
+        '46a703',
+        '36a801',
+        '209e01',
+        '029302',
+        '008900',
+        '027e02',
+        '047101',
+        '006400'
+      ], // min: -0.2, max: 0.8
       green: [
         'FFFFFF',
         'CE7E45',
@@ -120,7 +139,7 @@ let ndviGen = (
         '012E01',
         '011D01',
         '011301'
-      ],
+      ], // min: 0.5, max: 1
       redToGreen: ['ff0000', 'ffff00', '00ff00'],
       mosaic: ['00FFFF', '0000FF']
     };
@@ -149,9 +168,6 @@ let ndviGen = (
     let startDate: string = formattedTime(rangeDate)[0];
     let endDate: string = formattedTime(rangeDate)[1];
 
-    console.log('[date1, date2]... ', date1, ',', date2);
-    console.log('[startDate, endDate]... ', startDate, ',', endDate);
-
     let image: any = ee.Image(
       l8
         // .filterBounds(point)
@@ -163,45 +179,46 @@ let ndviGen = (
     let vis: any = image
       .visualize({
         bands: ['NDVI'],
-        min: 0.5,
-        max: 1,
+        // min e max dependem da paleta utilizada
+        min: -0.2,
+        max: 0.8,
         opacity: 1, // The opacity of the layer (0.0 is fully transparent and 1.0 is fully opaque)
-        palette: palette.green
+        palette: palette.ndviAgro
       })
       .clip(ee.Geometry.Polygon(coord));
 
-    console.log('[centroids -> Lng, Lat]... ', centroidLng, centroidLat);
-
-    console.log(
-      '[system:time_start]... ',
-      image.getInfo().properties['system:time_start']
-    );
-    console.log(
-      '[system:time_end]... ',
-      image.getInfo().properties['system:time_end']
-    );
-
-    // -----------------------------------------------------------------------------------------------------
-    // -------- Adquire o range de data da foto com menos nuvens que será retornada posteriormente ---------
-    // -----------------------------------------------------------------------------------------------------
-    let timeRange: any = [
-      image.getInfo().properties['system:time_start'],
-      image.getInfo().properties['system:time_end']
-    ]; // timeRange has the following format [timeStart, timeEnd]
-
-    console.log(image.getInfo().properties);
-
-    console.log(formattedTime(timeRange));
+    let time_start: number = image.getInfo().properties['system:time_start'];
+    let time_end: number = image.getInfo().properties['system:time_end'];
+    let index: string = image.getInfo().properties['system:index'];
 
     // -----------------------------------------------------------------------------------------------------
     // ----------------------------------------- Gera link da foto -----------------------------------------
     // -----------------------------------------------------------------------------------------------------
-    console.log(
-      vis.getThumbURL({
-        dimensions: [dimensionLng, dimensionLat],
-        region: ee.Geometry.Polygon(coord)
-      })
-    );
+    let urlImg: any = vis.getThumbURL({
+      dimensions: [dimensionLng, dimensionLat],
+      region: ee.Geometry.Polygon(coord)
+    });
+
+    // console.log(urlImg); // Mostra a url no console
+
+    // -----------------------------------------------------------------------------------------------------
+    // --------------------------------------- Gera array de objetos ---------------------------------------
+    // -----------------------------------------------------------------------------------------------------
+    let myArray: any = [];
+    myArray.push({
+      width: dimensionLng,
+      height: dimensionLat,
+      centroid: { lng: centroidLng, lat: centroidLat },
+      bounds: [
+        { lng: maxLng, lat: maxLat },
+        { lng: minLng, lat: minLat }
+      ],
+      time_start: time_start,
+      time_end: time_end,
+      index: index,
+      img_url: urlImg
+    });
+    console.log('myArray =', myArray);
   };
 
   // -----------------------------------------------------------------------------------------------------
@@ -238,4 +255,4 @@ const polygon = [
   }
 ];
 
-ndviGen(devKey, polygon, 500, 1617753600000, 1620518400000);
+ndviGen(devKey, polygon, 1500, 1617753600000, 1620518400000);
