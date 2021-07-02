@@ -2,7 +2,7 @@
 import ee = require('@google/earthengine');
 import devKey = require('./ndvi-316313-00d8329df0f9.json');
 
-let ndviGen = (
+let ndviGen: any = (
   devKey: any,
   polygon: any,
   pixels: number,
@@ -12,7 +12,7 @@ let ndviGen = (
   // -----------------------------------------------------------------------------------------------------
   // ---------------------------- Inicializa o client library e o run analysis ---------------------------
   // -----------------------------------------------------------------------------------------------------
-  let runAnalysis = () => {
+  let runAnalysis: any = () => {
     ee.initialize(
       null,
       null,
@@ -54,9 +54,9 @@ let ndviGen = (
     // ----- Cálculo das proporções para corrigir a imagem de acordo com suas coordenadas de lng e lat -----
     // -----------------------------------------------------------------------------------------------------
 
-    let coord: any = polygon.map((a: any) => [a.lng, a.lat]);
-    let coordLng: any = polygon.map((a: any) => [a.lng]).flat();
-    let coordLat: any = polygon.map((a: any) => [a.lat]).flat();
+    let coord: Array<Array<number>> = polygon.map((a: any) => [a.lng, a.lat]);
+    let coordLng: Array<number> = polygon.map((a: any) => [a.lng]).flat();
+    let coordLat: Array<number> = polygon.map((a: any) => [a.lat]).flat();
 
     var maxLng: number = coordLng.reduce(function (a, b) {
       return Math.max(a, b);
@@ -83,7 +83,7 @@ let ndviGen = (
     // -----------------------------------------------------------------------------------------------------
     // ---- Com base nos pontos das coordenadas do talhão, declara o ponto central na lng e lat da foto ----
     // -----------------------------------------------------------------------------------------------------
-    let point: any = ee.Geometry.Point([centroidLng, centroidLat]);
+    let point: object = ee.Geometry.Point([centroidLng, centroidLat]);
 
     // -----------------------------------------------------------------------------------------------------
     // ------------------------ Importa o Landsat 8 T1_32DAY_NDVI image collection -------------------------
@@ -148,7 +148,7 @@ let ndviGen = (
     // ------------------------------- Converte timestamp em formato de data -------------------------------
     // -----------------------------------------------------------------------------------------------------
     let formattedTime: any = (timeRange: any) => {
-      let range: any = [];
+      let range: Array<string> = [];
       for (let i = 0; i < timeRange.length; i++) {
         let unix_timestamp: any = timeRange[i];
         let year = new Date(unix_timestamp).getFullYear();
@@ -164,7 +164,7 @@ let ndviGen = (
     // -----------------------------------------------------------------------------------------------------
     // ---------------------------------------- Cria uma imagem RGB ----------------------------------------
     // -----------------------------------------------------------------------------------------------------
-    let rangeDate: any = [date1, date2];
+    let rangeDate: Array<number> = [date1, date2];
     let startDate: string = formattedTime(rangeDate)[0];
     let endDate: string = formattedTime(rangeDate)[1];
 
@@ -194,7 +194,7 @@ let ndviGen = (
     // -----------------------------------------------------------------------------------------------------
     // ----------------------------------------- Gera link da foto -----------------------------------------
     // -----------------------------------------------------------------------------------------------------
-    let urlImg: any = vis.getThumbURL({
+    let urlImg: string = vis.getThumbURL({
       dimensions: [dimensionLng, dimensionLat],
       region: ee.Geometry.Polygon(coord)
     });
@@ -202,10 +202,9 @@ let ndviGen = (
     // console.log(urlImg); // Mostra a url no console
 
     // -----------------------------------------------------------------------------------------------------
-    // --------------------------------------- Gera array de objetos ---------------------------------------
+    // -------------------------------------------- Gera objeto --------------------------------------------
     // -----------------------------------------------------------------------------------------------------
-    let myArray: any = [];
-    myArray.push({
+    let myObj:object = {
       width: dimensionLng,
       height: dimensionLat,
       centroid: { lng: centroidLng, lat: centroidLat },
@@ -217,19 +216,24 @@ let ndviGen = (
       time_end: time_end,
       index: index,
       img_url: urlImg
-    });
-    console.log('myArray =', myArray);
+    };
+    // console.log(myObj);
+    return myObj;
   };
 
   // -----------------------------------------------------------------------------------------------------
   // ------------------------------- Autenticação usando o service account -------------------------------
   // -----------------------------------------------------------------------------------------------------
-  ee.data.authenticateViaPrivateKey(devKey, runAnalysis, function (e: any) {
+
+  ee.data.authenticateViaPrivateKey(devKey, (jorge) => {
+    console.log(runAnalysis());
+    
+  }, function (e: any) {
     console.error('Authentication error: ' + e);
   });
 };
 
-const polygon = [
+const polygon: Array<object> = [
   {
     id: 'OTyjcMeO039jfg3illSc',
     lat: -13.932756478329273,
@@ -254,5 +258,4 @@ const polygon = [
     lng: -58.8162464688904
   }
 ];
-
-ndviGen(devKey, polygon, 1500, 1617753600000, 1620518400000);
+ndviGen(devKey, polygon, 500, 1617753600000, 1620518400000);
