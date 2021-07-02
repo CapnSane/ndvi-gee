@@ -2,9 +2,9 @@
   "name": "ndvi",
   "version": "1.0.0",
   "description": "Get the land images, apply the NDVI filter and be happy.",
-  "main": "ndvi.ts",
+  "main": "dist/ndvi.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node tests/test.js",
     "start": "node dist/ndvi.js"
   },
   "author": "Tarvos",
@@ -15,6 +15,9 @@
     "files": true
   },
   "dependencies": {
+    "@google/earthengine": "^0.1.272"
+  },
+  "devDependencies": {
     "@types/node": "^15.12.2",
     "typescript": "^4.3.2"
   }

@@ -8,7 +8,7 @@
     "strict": false,
     "allowJs": true,
     "skipLibCheck": true,
-    "target": "ES5",
+    "target": "ES6",
     "downlevelIteration": true,
     "resolveJsonModule": true
   },
