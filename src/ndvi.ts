@@ -1,15 +1,43 @@
 // Require client library and private key.
 import ee = require('@google/earthengine');
 
+type Coord = {
+  lng: number;
+  lat: number;
+};
+
+/**
+ * It acquires NDVI images with few clouds from Google Earth Engine and gives a promise with an object of interesting data.
+ * The library uses the Google Earth Engine for acquiring the NDVI image of a region of longitude and latitude coordinates.
+ * It is necessary passing the private key as parameter to the function. See `{@link https://developers.google.com/earth-engine/apidocs/ee-data-authenticateviaprivatekey?hl=en}`.
+ *
+ *
+ * @param devKey <AuthPrivateKey> - The JSON content of private key.
+ * @param polygon <Coord[]> - The longitude and latitude coordinates of a given image.
+ * @param width <number> - The width of an image in pixels.
+ * @param dateStart <number> - The first date in timestamp of an image collection date.
+ * @param dateEnd <number> - The last date in timestamp of an image collection date.
+ * @returns The function returns a promise with an object containing:
+ * - width <number> - The width of an image in pixels.
+ * - height <number> - The height of an image in pixels normalised by the given width.
+ * - centroid <Object> - The centroid or geometric center of a plane figure. It is the point at which a cutout of the shape could be perfectly balanced on the tip of a pin.
+ * - bounds <Object[]> - Corners of the bounding box of the polygon.
+ * - time_start <number> - It is set to the nominal composite start period for temporal composites. (timestamp)
+ * - time_end <number> - The ending time stamp is set to the nominal image acquisition time for single scenes. It is set to midnight on the day after the nominal composite end period for MODIS (`@link https://modis.gsfc.nasa.gov/`) temporal composites. (timestamp)
+ * - index <string> - The image index given by satellite system.
+ * - img_url <string> - The NDVI cropped image url.
+ *
+ */
+
 export function ndviGen(
-  devKey: any,
-  polygon: any,
-  pixels: number,
-  date1: number,
-  date2: number
+  devKey: Object,
+  polygon: Coord[],
+  width: number,
+  dateStart: number,
+  dateEnd: number
 ): Promise<any> {
   // -----------------------------------------------------------------------------------------------------
-  // ---------------------------- Inicializa o client library e o run analysis ---------------------------
+  // --------------------------- Initialise the client library e o run analysis --------------------------
   // -----------------------------------------------------------------------------------------------------
   let runAnalysis: any = () => {
     ee.initialize(
@@ -22,40 +50,12 @@ export function ndviGen(
     );
 
     // -----------------------------------------------------------------------------------------------------
-    // --------------------------- Cálculo do centróide de um polígono qualquer ----------------------------
-    // -----------------------------------------------------------------------------------------------------
-    let get_polygon_centroid = (pts: any) => {
-      let first = pts[0],
-        last = pts[pts.length - 1];
-      if (first.lng != last.lng || first.lat != last.lat) pts.push(first);
-      let area: number = 0,
-        lng = 0,
-        lat = 0,
-        nPts = pts.length,
-        p1: { lat: number; lng: number },
-        p2: { lng: number; lat: number },
-        f: number;
-      for (let i = 0, j = nPts - 1; i < nPts; j = i++) {
-        p1 = pts[i];
-        p2 = pts[j];
-        f =
-          (p1.lat - first.lat) * (p2.lng - first.lng) -
-          (p2.lat - first.lat) * (p1.lng - first.lng);
-        area += f;
-        lng += (p1.lng + p2.lng - 2 * first.lng) * f;
-        lat += (p1.lat + p2.lat - 2 * first.lat) * f;
-      }
-      f = area * 3;
-      return { lng: lng / f + first.lng, lat: lat / f + first.lat };
-    };
-
-    // -----------------------------------------------------------------------------------------------------
-    // ----- Cálculo das proporções para corrigir a imagem de acordo com suas coordenadas de lng e lat -----
+    // ---- Calculating the proportions to correct the image according to its lng and lat coordinates  -----
     // -----------------------------------------------------------------------------------------------------
 
     let coord: Array<Array<number>> = polygon.map((a: any) => [a.lng, a.lat]);
-    let coordLng: Array<number> = polygon.map((a: any) => [a.lng]).flat();
-    let coordLat: Array<number> = polygon.map((a: any) => [a.lat]).flat();
+    let coordLng: Array<number> = polygon.map((a: Coord) => a.lng);
+    let coordLat: Array<number> = polygon.map((a: Coord) => a.lat);
 
     var maxLng: number = coordLng.reduce(function (a, b) {
       return Math.max(a, b);
@@ -73,24 +73,24 @@ export function ndviGen(
     let deltaLng: number = maxLng - minLng;
     let deltaLat: number = maxLat - minLat;
 
-    let dimensionLng: number = Math.round(pixels);
-    let dimensionLat: number = Math.round((pixels * deltaLat) / deltaLng);
+    let dimensionLng: number = Math.round(width);
+    let dimensionLat: number = Math.round((width * deltaLat) / deltaLng);
 
     let centroidLng: number = get_polygon_centroid(polygon).lng;
     let centroidLat: number = get_polygon_centroid(polygon).lat;
 
     // -----------------------------------------------------------------------------------------------------
-    // ---- Com base nos pontos das coordenadas do talhão, declara o ponto central na lng e lat da foto ----
+    // - Based on the coordinate harvest points, declares the center point in the lng and lat of the photo -
     // -----------------------------------------------------------------------------------------------------
     let point: object = ee.Geometry.Point([centroidLng, centroidLat]);
 
     // -----------------------------------------------------------------------------------------------------
-    // ------------------------ Importa o Landsat 8 T1_32DAY_NDVI image collection -------------------------
+    // ----------------------- Import the Landsat 8 T1_32DAY_NDVI image collection -------------------------
     // -----------------------------------------------------------------------------------------------------
     let l8: any = ee.ImageCollection('LANDSAT/LC08/C01/T1_32DAY_NDVI');
 
     // -----------------------------------------------------------------------------------------------------
-    // ----------------------------------- Definição de paletas de cores -----------------------------------
+    // ------------------------------------ Colour palette definitions -------------------------------------
     // -----------------------------------------------------------------------------------------------------
     const palette: any = {
       default: ['blue', 'white', 'green'],
@@ -144,33 +144,14 @@ export function ndviGen(
     };
 
     // -----------------------------------------------------------------------------------------------------
-    // ------------------------------- Converte timestamp em formato de data -------------------------------
+    // --------------------------------------- Create an RGB imagem ----------------------------------------
     // -----------------------------------------------------------------------------------------------------
-    let formattedTime: any = (timeRange: any) => {
-      let range: Array<string> = [];
-      for (let i = 0; i < timeRange.length; i++) {
-        let unix_timestamp: any = timeRange[i];
-        let year = new Date(unix_timestamp).getFullYear();
-        let month = new Date(unix_timestamp).getMonth() + 1;
-        let day = new Date(unix_timestamp).getDate();
-        let formattedTime =
-          year + '/' + ('0' + month).slice(-2) + '/' + ('0' + day).slice(-2);
-        range.push(formattedTime);
-      }
-      return range;
-    };
-
-    // -----------------------------------------------------------------------------------------------------
-    // ---------------------------------------- Cria uma imagem RGB ----------------------------------------
-    // -----------------------------------------------------------------------------------------------------
-    let rangeDate: Array<number> = [date1, date2];
-    let startDate: string = formattedTime(rangeDate)[0];
-    let endDate: string = formattedTime(rangeDate)[1];
+    let rangeDate: Array<number> = [dateStart, dateEnd];
 
     let image: any = ee.Image(
       l8
         // .filterBounds(point)
-        .filterDate(date1, date2)
+        .filterDate(dateStart, dateEnd)
         .sort('CLOUD_COVER')
         .first()
     );
@@ -191,19 +172,17 @@ export function ndviGen(
     let index: string = image.getInfo().properties['system:index'];
 
     // -----------------------------------------------------------------------------------------------------
-    // ----------------------------------------- Gera link da foto -----------------------------------------
+    // -------------------------------------- Generates the image url --------------------------------------
     // -----------------------------------------------------------------------------------------------------
     let urlImg: string = vis.getThumbURL({
       dimensions: [dimensionLng, dimensionLat],
       region: ee.Geometry.Polygon(coord)
     });
 
-    // console.log(urlImg); // Mostra a url no console
-
     // -----------------------------------------------------------------------------------------------------
-    // -------------------------------------------- Gera objeto --------------------------------------------
+    // -------------------------------------------- Ret object ---------------------------------------------
     // -----------------------------------------------------------------------------------------------------
-    let myObj: object = {
+    let ret: object = {
       width: dimensionLng,
       height: dimensionLat,
       centroid: { lng: centroidLng, lat: centroidLat },
@@ -216,8 +195,7 @@ export function ndviGen(
       index: index,
       img_url: urlImg
     };
-    // console.log(myObj);
-    return myObj;
+    return ret;
   };
 
   // -----------------------------------------------------------------------------------------------------
@@ -235,3 +213,31 @@ export function ndviGen(
     );
   });
 }
+
+// -----------------------------------------------------------------------------------------------------
+// --------------------------- Cálculo do centróide de um polígono qualquer ----------------------------
+// -----------------------------------------------------------------------------------------------------
+let get_polygon_centroid = (pts: any) => {
+  let first = pts[0],
+    last = pts[pts.length - 1];
+  if (first.lng != last.lng || first.lat != last.lat) pts.push(first);
+  let area: number = 0,
+    lng = 0,
+    lat = 0,
+    nPts = pts.length,
+    p1: { lat: number; lng: number },
+    p2: { lng: number; lat: number },
+    f: number;
+  for (let i = 0, j = nPts - 1; i < nPts; j = i++) {
+    p1 = pts[i];
+    p2 = pts[j];
+    f =
+      (p1.lat - first.lat) * (p2.lng - first.lng) -
+      (p2.lat - first.lat) * (p1.lng - first.lng);
+    area += f;
+    lng += (p1.lng + p2.lng - 2 * first.lng) * f;
+    lat += (p1.lat + p2.lat - 2 * first.lat) * f;
+  }
+  f = area * 3;
+  return { lng: lng / f + first.lng, lat: lat / f + first.lat };
+};

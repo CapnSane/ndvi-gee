@@ -1,11 +1,12 @@
 {
-  "name": "ndvi",
-  "version": "1.0.0",
-  "description": "Get the land images, apply the NDVI filter and be happy.",
+  "name": "ndvi-gee",
+  "version": "1.0.0-beta",
+  "description": "Get the land images, apply the NDVI filter, take the image with few clouds and be happy.",
   "main": "dist/ndvi.js",
   "scripts": {
     "test": "node tests/test.js",
-    "start": "node dist/ndvi.js"
+    "build": "tsc",
+    "start": "echo 'error: no start specified' && exit 1"
   },
   "author": "Tarvos",
   "license": "MIT",
