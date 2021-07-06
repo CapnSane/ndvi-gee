@@ -9,23 +9,44 @@ type Coord = {
 /**
  * It acquires NDVI images with few clouds from Google Earth Engine and gives a promise with an object of interesting data.
  * The library uses the Google Earth Engine for acquiring the NDVI image of a region of longitude and latitude coordinates.
- * It is necessary passing the private key as parameter to the function. See `{@link https://developers.google.com/earth-engine/apidocs/ee-data-authenticateviaprivatekey?hl=en}`.
+ * It is necessary passing the private key as parameter to the function. See {@link https://developers.google.com/earth-engine/apidocs/ee-data-authenticateviaprivatekey?hl=en}.
  *
  *
- * @param devKey <AuthPrivateKey> - The JSON content of private key.
- * @param polygon <Coord[]> - The longitude and latitude coordinates of a given image.
- * @param width <number> - The width of an image in pixels.
- * @param dateStart <number> - The first date in timestamp of an image collection date.
- * @param dateEnd <number> - The last date in timestamp of an image collection date.
+ * @param devKey - The first input `object`. The JSON content of private key.
+ * @param polygon - An input `array of coordinates`. The longitude and latitude coordinates of a given map.
+ * @param width - An input integer `number`. The width of an image in pixels.
+ * @param dateStart - The first input `number`. The first date in timestamp of an image collection date.
+ * @param dateEnd - The second input `number`. The last date in timestamp of an image collection date.
+ * 
  * @returns The function returns a promise with an object containing:
- * - width <number> - The width of an image in pixels.
- * - height <number> - The height of an image in pixels normalised by the given width.
- * - centroid <Object> - The centroid or geometric center of a plane figure. It is the point at which a cutout of the shape could be perfectly balanced on the tip of a pin.
- * - bounds <Object[]> - Corners of the bounding box of the polygon.
- * - time_start <number> - It is set to the nominal composite start period for temporal composites. (timestamp)
- * - time_end <number> - The ending time stamp is set to the nominal image acquisition time for single scenes. It is set to midnight on the day after the nominal composite end period for MODIS (`@link https://modis.gsfc.nasa.gov/`) temporal composites. (timestamp)
- * - index <string> - The image index given by satellite system.
- * - img_url <string> - The NDVI cropped image url.
+ * 
+ * - `width` - The width of an image in pixels. It is an integer `number`.
+ * 
+ * - `height` - The height of an image in pixels normalised by the given width. It is an rounded integer `number`.
+ * 
+ * - `centroid` - The centroid or geometric centre of a plane figure. It is the point at which a cutout of the shape could be perfectly balanced on the tip of a pin. It is an `object`.
+ * ```
+ *       centroid: { lng: <centroid of the lng>, lat: <centroid of the lat> }
+ * ```
+ * 
+ * - `bounds` - Corners of the bounding box of the polygon. It is an `array of objects`.
+ * ```
+ *       bounds: [
+ *        { lng: <maxLng>, lat: <maxLat> },
+ *        { lng: <minLng>, lat: <minLat> }
+ *      ],
+ * ```
+ * 
+ * - `time_start` - It is set to the nominal composite start period for temporal composites. It is a timestamp `number`.
+ *
+ * - `time_end` - The ending `timestamp` is set to the nominal image acquisition time for single scenes. It is set to midnight on the day after the nominal composite end period for MODIS ({@link https://modis.gsfc.nasa.gov/}) temporal composites.
+ * 
+ * - `index` - The image index given by the satellite system. It is a `string` format.
+ * 
+ * - `img_url` - The NDVI cropped image `url`.
+ *
+ * 
+ * @beta
  *
  */
 
