@@ -1,16 +1,33 @@
 {
   "name": "ndvi-gee",
   "version": "1.0.0-beta",
+  "keywords": [
+    "ndvi",
+    "GEE",
+    "Google Earth Engine",
+    "cropping",
+    "crop image"
+  ],
   "description": "Get the land images, apply the NDVI filter, take the image with few clouds and be happy.",
   "main": "dist/ndvi.js",
+  "files": [
+    "src/",
+    "dist/"
+  ],
   "scripts": {
+    "prepack": "npm run-script build",
     "test": "node tests/test.js",
     "build": "tsc",
     "start": "echo 'error: no start specified' && exit 1"
   },
-  "author": "Tarvos",
+  "author": "Leonardo Schneider",
+  "email": "lnrdschneider@gmail.com",
+  "homepage": "https://capnsane.github.io/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CapnSane/ndvi"
+  },
   "license": "MIT",
-  "extends": "ts-node/node12/tsconfig.json",
   "ts-node": {
     "transpileOnly": true,
     "files": true
