@@ -78,18 +78,10 @@ export function ndviGen(
     let coordLng: Array<number> = polygon.map((a: Coord) => a.lng);
     let coordLat: Array<number> = polygon.map((a: Coord) => a.lat);
 
-    var maxLng: number = coordLng.reduce(function (a, b) {
-      return Math.max(a, b);
-    });
-    var minLng: number = coordLng.reduce(function (a, b) {
-      return Math.min(a, b);
-    });
-    var maxLat: number = coordLat.reduce(function (a, b) {
-      return Math.max(a, b);
-    });
-    var minLat: number = coordLat.reduce(function (a, b) {
-      return Math.min(a, b);
-    });
+    var maxLng: number = Math.max(...coordLng);
+    var minLng: number = Math.min(...coordLng);
+    var maxLat: number = Math.max(...coordLat);
+    var minLat: number = Math.min(...coordLat);
 
     let deltaLng: number = maxLng - minLng;
     let deltaLat: number = maxLat - minLat;
