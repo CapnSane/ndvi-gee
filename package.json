@@ -1,12 +1,14 @@
 {
   "name": "ndvi-gee",
-  "version": "1.0.0-beta",
+  "version": "1.0.1-beta",
   "keywords": [
     "ndvi",
     "GEE",
     "Google Earth Engine",
     "cropping",
-    "crop image"
+    "crop image",
+    "satellite image",
+    "ndvi-gee"
   ],
   "description": "Get the land images, apply the NDVI filter, take the image with few clouds and be happy.",
   "main": "dist/ndvi.js",
@@ -25,7 +27,7 @@
   "homepage": "https://capnsane.github.io/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/CapnSane/ndvi"
+    "url": "https://github.com/CapnSane/ndvi-gee"
   },
   "license": "MIT",
   "ts-node": {
