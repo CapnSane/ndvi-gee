@@ -168,29 +168,31 @@ export function ndviGen(
         .sort('CLOUD_COVER')
         .first()
     );
-
-    let vis: any = image
+    
+    let time_start: number = image.getInfo()?image.getInfo().properties['system:time_start']:null;
+    let time_end: number = image.getInfo()?image.getInfo().properties['system:time_end']:null;
+    let index: string = image.getInfo()?image.getInfo().properties['system:index']:null;
+    let urlImg: string = null;
+    if (index!=null) {
+      let vis: any = image
       .visualize({
         bands: ['NDVI'],
-        // min e max dependem da paleta utilizada
-        min: -0.2,
-        max: 0.8,
-        opacity: 1, // The opacity of the layer (0.0 is fully transparent and 1.0 is fully opaque)
-        palette: palette.ndviAgro
-      })
-      .clip(ee.Geometry.Polygon(coord));
-
-    let time_start: number = image.getInfo().properties['system:time_start'];
-    let time_end: number = image.getInfo().properties['system:time_end'];
-    let index: string = image.getInfo().properties['system:index'];
-
-    // -----------------------------------------------------------------------------------------------------
-    // -------------------------------------- Generates the image url --------------------------------------
-    // -----------------------------------------------------------------------------------------------------
-    let urlImg: string = vis.getThumbURL({
-      dimensions: [dimensionLng, dimensionLat],
-      region: ee.Geometry.Polygon(coord)
-    });
+          // min e max dependem da paleta utilizada
+          min: -0.2,
+          max: 0.8,
+          opacity: 1, // The opacity of the layer (0.0 is fully transparent and 1.0 is fully opaque)
+          palette: palette.ndviAgro
+        })
+        .clip(ee.Geometry.Polygon(coord));
+      // -----------------------------------------------------------------------------------------------------
+      // -------------------------------------- Generates the image url --------------------------------------
+      // -----------------------------------------------------------------------------------------------------
+      urlImg = vis.getThumbURL({
+        dimensions: [dimensionLng, dimensionLat],
+        region: ee.Geometry.Polygon(coord)
+      });
+      
+    }
 
     // -----------------------------------------------------------------------------------------------------
     // -------------------------------------------- Ret object ---------------------------------------------
