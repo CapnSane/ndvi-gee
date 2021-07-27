@@ -17,18 +17,18 @@ type Coord = {
  * @param width - An input integer `number`. The width of an image in pixels.
  * @param dateStart - The first input `number`. The first date in timestamp of an image collection date.
  * @param dateEnd - The second input `number`. The last date in timestamp of an image collection date.
- * 
+ *
  * @returns The function returns a promise with an object containing:
- * 
+ *
  * - `width` - The width of an image in pixels. It is an integer `number`.
- * 
+ *
  * - `height` - The height of an image in pixels normalised by the given width. It is an rounded integer `number`.
- * 
+ *
  * - `centroid` - The centroid or geometric centre of a plane figure. It is the point at which a cutout of the shape could be perfectly balanced on the tip of a pin. It is an `object`.
  * ```
  *       centroid: { lng: <centroid of the lng>, lat: <centroid of the lat> }
  * ```
- * 
+ *
  * - `bounds` - Corners of the bounding box of the polygon. It is an `array of objects`.
  * ```
  *       bounds: [
@@ -36,26 +36,28 @@ type Coord = {
  *        { lng: <minLng>, lat: <minLat> }
  *      ],
  * ```
- * 
+ *
  * - `time_start` - It is set to the nominal composite start period for temporal composites. It is a timestamp `number`.
  *
  * - `time_end` - The ending `timestamp` is set to the nominal image acquisition time for single scenes. It is set to midnight on the day after the nominal composite end period for MODIS ({@link https://modis.gsfc.nasa.gov/}) temporal composites.
- * 
+ *
  * - `index` - The image index given by the satellite system. It is a `string` format.
- * 
+ *
  * - `img_url` - The NDVI cropped image `url`.
  *
- * 
+ *
  * @beta
  *
  */
 
-export function ndviGen(
+export function imageGen(
   devKey: Object,
   polygon: Coord[],
   width: number,
   dateStart: number,
-  dateEnd: number
+  dateEnd: number,
+  sat: string,
+  bands: string[]
 ): Promise<any> {
   // -----------------------------------------------------------------------------------------------------
   // --------------------------- Initialise the client library e o run analysis --------------------------
@@ -100,7 +102,8 @@ export function ndviGen(
     // -----------------------------------------------------------------------------------------------------
     // ----------------------- Import the Landsat 8 T1_32DAY_NDVI image collection -------------------------
     // -----------------------------------------------------------------------------------------------------
-    let l8: any = ee.ImageCollection('LANDSAT/LC08/C01/T1_32DAY_NDVI');
+    
+    let l8: any = ee.ImageCollection(sat);
 
     // -----------------------------------------------------------------------------------------------------
     // ------------------------------------ Colour palette definitions -------------------------------------
@@ -168,20 +171,28 @@ export function ndviGen(
         .sort('CLOUD_COVER')
         .first()
     );
-    
-    let time_start: number = image.getInfo()?image.getInfo().properties['system:time_start']:null;
-    let time_end: number = image.getInfo()?image.getInfo().properties['system:time_end']:null;
-    let index: string = image.getInfo()?image.getInfo().properties['system:index']:null;
+
+    let time_start: number = image.getInfo()
+      ? image.getInfo().properties['system:time_start']
+      : null;
+    let time_end: number = image.getInfo()
+      ? image.getInfo().properties['system:time_end']
+      : null;
+    let index: string = image.getInfo()
+      ? image.getInfo().properties['system:index']
+      : null;
     let urlImg: string = null;
-    if (index!=null) {
+    if (index != null) {
       let vis: any = image
-      .visualize({
-        bands: ['NDVI'],
+        .visualize({
+          bands: bands,
           // min e max dependem da paleta utilizada
-          min: -0.2,
-          max: 0.8,
+          // min: -0.2,
+          // max: 0.8,
+          min: 0,
+          max: 0.5,
           opacity: 1, // The opacity of the layer (0.0 is fully transparent and 1.0 is fully opaque)
-          palette: palette.ndviAgro
+          // palette: palette.ndviAgro
         })
         .clip(ee.Geometry.Polygon(coord));
       // -----------------------------------------------------------------------------------------------------
@@ -191,7 +202,6 @@ export function ndviGen(
         dimensions: [dimensionLng, dimensionLat],
         region: ee.Geometry.Polygon(coord)
       });
-      
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -256,3 +266,22 @@ let get_polygon_centroid = (pts: any) => {
   f = area * 3;
   return { lng: lng / f + first.lng, lat: lat / f + first.lat };
 };
+
+export function ndviGen(
+  devKey: Object,
+  polygon: Coord[],
+  width: number,
+  dateStart: number,
+  dateEnd: number
+): Promise<any> {
+  return imageGen(devKey, polygon, width, dateStart, dateEnd, 'LANDSAT/LC08/C01/T1_32DAY_NDVI', ['NDVI']);
+}
+export function rgbGen(
+  devKey: Object,
+  polygon: Coord[],
+  width: number,
+  dateStart: number,
+  dateEnd: number
+): Promise<any> {
+  return imageGen(devKey, polygon, width, dateStart, dateEnd, 'LANDSAT/LC08/C01/T1_TOA', ['B5', 'B4', 'B3']);
+}

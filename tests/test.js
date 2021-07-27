@@ -23,6 +23,10 @@ const polygon = [
   }
 ];
 
-ndviGee.ndviGen(devKey, polygon, 500, 1617753600000, 1620518400000).then((result) => {
+// ndviGee.ndviGen(devKey, polygon, 500, 1617753600000, 1620518400000).then((result) => {
+//   console.log(result);
+// });
+
+ndviGee.rgbGen(devKey, polygon, 500, 1617753600000, 1620518400000).then((result) => {
   console.log(result);
 });
