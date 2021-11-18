@@ -4,13 +4,12 @@
 
 [![maintenance](https://img.shields.io/npms-io/maintenance-score/ndvi-gee)](https://www.npmjs.com/package/ndvi-gee) [![](https://img.shields.io/github/languages/top/CapnSane/ndvi-gee)](https://github.com/CapnSane/ndvi-gee) [![npm version](https://badge.fury.io/js/ndvi-gee.svg)](https://badge.fury.io/js/ndvi-gee) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/licenses/MIT) [![downloads](https://img.shields.io/npm/dt/ndvi-gee)](https://img.shields.io/npm/dt/ndvi-gee)
 
-<br>
-<div style="text-align: center;">
-  <figure >
-    <img src="images/example.png" alt="example" />
-    <figcaption style="text-align: center;"><i>Quick Start</i> ndvi image example</figcaption>
-  </figure>
-</div>
+<figure >
+  <img src="images/example.png" alt="example" />
+  <figcaption>
+    <i>Quick Start</i> ndvi image example
+  </figcaption>
+</figure>
 <br>
 <br>
 
