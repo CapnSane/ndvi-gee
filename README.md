@@ -4,6 +4,12 @@
 
 [![maintenance](https://img.shields.io/npms-io/maintenance-score/ndvi-gee)](https://www.npmjs.com/package/ndvi-gee) [![](https://img.shields.io/github/languages/top/CapnSane/ndvi-gee)](https://github.com/CapnSane/ndvi-gee) [![npm version](https://badge.fury.io/js/ndvi-gee.svg)](https://badge.fury.io/js/ndvi-gee) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/licenses/MIT) [![downloads](https://img.shields.io/npm/dt/ndvi-gee)](https://img.shields.io/npm/dt/ndvi-gee)
 
+<br>
+ <figure style="text-align: center;">
+  <img src="images/example.png" alt="example" />
+  <figcaption style="text-align: center;"><i>Quick Start</i> ndvi image example</figcaption>
+</figure> 
+<br>
 ## Quick Start
 
 ndvi-gee uses geometry system to crop a satellite image, and calculate the size of the image acquired from Google Earth Engine (GEE) using a given image width in pixels, and returns an object with many interesting data.
