@@ -104,7 +104,7 @@ The parameters are described as:
 | Param     | Type                         | Description                                              |
 | --------- | ---------------------------- | -------------------------------------------------------- |
 | devKey    | <code>Object</code>          | The JSON content of private key.                         |
-| polygon   | <code>`Array<Object>`</code> | The longitude and latitude coordinates of a given map.   |
+| polygon   | <code>Array`<Object>`</code> | The longitude and latitude coordinates of a given map.   |
 | width     | <code>Number</code>          | The width of an image in pixels.                         |
 | dateStart | <code>Number</code>          | The first date in timestamp of an image collection date. |
 | dateEnd   | <code>Number</code>          | The last date in timestamp of an image collection date.  |
@@ -118,7 +118,7 @@ The function returns a promise that is fulfilled with an object containing:
 | width      | <code>Number</code>          | The width of an image in pixels.                                                                                                                                                                                              |
 | height     | <code>Number</code>          | The height of an image in pixels normalised by the given width. It is an rounded integer number.                                                                                                                              |
 | centroid   | <code>Object</code>          | The centroid or geometric centre of a plane figure. It is the point at which a cutout of the shape could be perfectly balanced on the tip of a pin.                                                                           |
-| bounds     | <code>`Array<Object>`</code> | Corners of the bounding box of the polygon.                                                                                                                                                                                   |
+| bounds     | <code>Array`<Object>`</code> | Corners of the bounding box of the polygon.                                                                                                                                                                                   |
 | time_start | <code>Number</code>          | It is set to the nominal composite start period for temporal composites. It is a `timestamp` number format.                                                                                                                   |
 | time_end   | <code>Number</code>          | The ending `timestamp` is set to the nominal image acquisition time for single scenes. It is set to midnight on the day after the nominal composite end period for [MODIS](https://modis.gsfc.nasa.gov/) temporal composites. |
 | index      | <code>String</code>          | The image index given by the satellite system.                                                                                                                                                                                |
