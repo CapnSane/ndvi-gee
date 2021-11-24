@@ -4,14 +4,16 @@
 
 [![maintenance](https://img.shields.io/npms-io/maintenance-score/ndvi-gee)](https://www.npmjs.com/package/ndvi-gee) [![](https://img.shields.io/github/languages/top/CapnSane/ndvi-gee)](https://github.com/CapnSane/ndvi-gee) [![npm version](https://badge.fury.io/js/ndvi-gee.svg)](https://badge.fury.io/js/ndvi-gee) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/licenses/MIT) [![downloads](https://img.shields.io/npm/dt/ndvi-gee)](https://img.shields.io/npm/dt/ndvi-gee)
 
-<figure >
-  <img src="images/example.png" alt="example" />
-  <figcaption>
-    <i>Quick Start</i> ndvi image example
-  </figcaption>
-</figure>
-<br>
-<br>
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Image example](#image-example)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Parameters](#parameters)
+  - [Return Values](#return-values)
+- [Contributors](#contributors)
+- [License](#license)
 
 ## Quick Start
 
@@ -54,7 +56,18 @@ ndviGee.ndviGen(devKey, polygon, width, dateStart, dateEnd).then((result) => {
 });
 ```
 
-## Install
+## Image example
+
+<p align="center">
+  <figure >
+    <img src="images/example.png" alt="example" />
+    <figcaption>
+      <i>Quick Start</i> ndvi image example
+    </figcaption>
+  </figure>
+</p>
+
+## Installation
 
 Install with npm:
 
@@ -110,3 +123,31 @@ The function returns a promise that is fulfilled with an object containing:
 | time_end   | <code>Number</code>          | The ending `timestamp` is set to the nominal image acquisition time for single scenes. It is set to midnight on the day after the nominal composite end period for [MODIS](https://modis.gsfc.nasa.gov/) temporal composites. |
 | index      | <code>String</code>          | The image index given by the satellite system.                                                                                                                                                                                |
 | img_url    | <code>String</code>          | The NDVI cropped image `url`.                                                                                                                                                                                                 |
+
+## Contributors
+
+- [Luiz Eduardo Amaral](https://github.com/luxedo)
+
+## License
+
+> MIT License
+>
+> Copyright (c) 2021 [Leonardo Schneider](lnrdschneider@gmail.com)
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in all
+> copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+> SOFTWARE.
