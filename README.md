@@ -1,6 +1,6 @@
 # ndvi-gee
 
-> ndvi-gee is a typescript library for acquiring NDVI images with few clouds from a satellite database from Google Earth Engine and it returns a promise fulfilled with an object of interesting data.
+> ndvi-gee is a TypeScript library for acquiring NDVI (_normalized difference vegetation index_) images with few clouds from a satellite database from Google Earth Engine and it returns a promise fulfilled with an object of interesting data.
 
 [![maintenance](https://img.shields.io/npms-io/maintenance-score/ndvi-gee)](https://www.npmjs.com/package/ndvi-gee) [![](https://img.shields.io/github/languages/top/CapnSane/ndvi-gee)](https://github.com/CapnSane/ndvi-gee) [![npm version](https://badge.fury.io/js/ndvi-gee.svg)](https://badge.fury.io/js/ndvi-gee) [![License: MIT](https://img.shields.io/badge/license-MIT-yellow)](https://opensource.org/licenses/MIT) [![downloads](https://img.shields.io/npm/dt/ndvi-gee)](https://img.shields.io/npm/dt/ndvi-gee)
 

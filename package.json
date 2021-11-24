@@ -8,7 +8,11 @@
     "cropping",
     "crop image",
     "satellite image",
-    "ndvi-gee"
+    "ndvi-gee",
+    "normalized difference vegetation index",
+    "vegetation index",
+    "vegetation cover",
+    "ndvi no clouds"
   ],
   "description": "Get the land images, apply the NDVI filter, take the image with few clouds and be happy.",
   "main": "dist/ndvi.js",
