@@ -124,6 +124,10 @@ The function returns a promise that is fulfilled with an object containing:
 | index      | <code>String</code> | The image index given by the satellite system.                                                                                                                                                                                |
 | img_url    | <code>String</code> | The NDVI cropped image `url`.                                                                                                                                                                                                 |
 
+## Wanna help?
+
+I'm always opened to ideas and suggestions. If you want to help this repository, please **fork**, **improve**, and **PR**.
+
 ## Contributors
 
 - [Luiz Eduardo Amaral](https://github.com/luxedo)
